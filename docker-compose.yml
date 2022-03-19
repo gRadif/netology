@@ -1,0 +1,38 @@
+version: "3.9"
+   
+services:
+
+  db:
+    image: postgres
+    volumes:
+      - /var/lib/docker/volumes/my_db/_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  web:
+    image: django
+    command: sh -c "gunicorn --bind 0.0.0.0:8000 stocks_products.wsgi"
+    volumes:
+      - .:/app
+      - ./nginx_configure_docker:/etc/nginx/conf.d/
+    expose:
+      - 8000
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - DEBUG=False
+      - SECRET_KEY='KSDHGKLADSHGJKDASGHKSDHGDSKJ'
+    depends_on:
+      - db
+
+  nginx:
+    #image: nginx
+    build: ./nginx_configure_docker   # если build закоментировать, а image и volumes раскоментировать
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+#    volumes:
+#      - ./nginx_configure_docker/:/etc/nginx/conf.d/

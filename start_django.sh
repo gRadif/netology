@@ -1,0 +1,1 @@
+exec gunicorn -c "/app/gunicorn_config.py" stocks_products.wsgi
